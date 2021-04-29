@@ -1,7 +1,7 @@
 package mediainfo
 
 import (
-	"encoding/xml"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os/exec"
@@ -9,51 +9,6 @@ import (
 )
 
 var mediainfoBinary = flag.String("mediainfo-bin", "mediainfo", "the path to the mediainfo binary if it is not in the system $PATH")
-
-type mediainfo struct {
-	XMLName xml.Name `xml:"MediaInfo"`
-	File    file     `xml:"File"`
-}
-
-type track struct {
-	XMLName                   xml.Name `xml:"track"`
-	Type                      string   `xml:"type,attr"`
-	File_name                 string   `xml:"File_name"`
-	Format_Info               string   `xml:"Format_Info"`
-	Color_space               string   `xml:"Color_space"`
-	Complete_name             string   `xml:"Complete_name"`
-	Format_profile            string   `xml:"Format_profile"`
-	File_extension            string   `xml:"File_extension"`
-	Chroma_subsampling        string   `xml:"Chroma_subsampling"`
-	Writing_application       string   `xml:"Writing_application"`
-	Proportion_of_this_stream string   `xml:"Proportion_of_this_stream"`
-	Width                     []string `xml:"Width"`
-	Height                    []string `xml:"Height"`
-	Format                    []string `xml:"Format"`
-	Duration                  []string `xml:"Duration"`
-	Bit_rate                  []string `xml:"Bit_rate"`
-	Bit_depth                 []string `xml:"Bit_depth"`
-	Scan_type                 []string `xml:"Scan_type"`
-	File_size                 []string `xml:"File_size"`
-	Frame_rate                []string `xml:"Frame_rate"`
-	Channel_s_                []string `xml:"Channel_s_"`
-	Stream_size               []string `xml:"Stream_size"`
-	Interlacement             []string `xml:"Interlacement"`
-	Bit_rate_mode             []string `xml:"Bit_rate_mode"`
-	Sampling_rate             []string `xml:"Sampling_rate"`
-	Writing_library           []string `xml:"Writing_library"`
-	Frame_rate_mode           []string `xml:"Frame_rate_mode"`
-	Overall_bit_rate          []string `xml:"Overall_bit_rate"`
-	Display_aspect_ratio      []string `xml:"Display_aspect_ratio"`
-	Overall_bit_rate_mode     []string `xml:"Overall_bit_rate_mode"`
-	Format_settings__CABAC    []string `xml:"Format_settings__CABAC"`
-	Format_settings__ReFrames []string `xml:"Format_settings__ReFrames"`
-}
-
-type file struct {
-	XMLName xml.Name `xml:"File"`
-	Tracks  []track  `xml:"track"`
-}
 
 type MediaInfo struct {
 	General general `json:"general,omitempty"`
@@ -139,13 +94,13 @@ func GetMediaInfo(fname string) (MediaInfo, error) {
 	if !IsInstalled() {
 		return info, fmt.Errorf("Must install mediainfo")
 	}
-	out, err := exec.Command(*mediainfoBinary, "--Output=XML", "-f", fname).Output()
+	out, err := exec.Command(*mediainfoBinary, "--Output=JSON", "-f", fname).Output()
 
 	if err != nil {
 		return info, err
 	}
 
-	if err := xml.Unmarshal(out, &minfo); err != nil {
+	if err := json.Unmarshal(out, &minfo); err != nil {
 		return info, err
 	}
 
