@@ -69,7 +69,7 @@ func (info MediaInfo) IsMedia() bool {
 	return info.Media.Tracks[0].Type == "Video" || info.Media.Tracks[0].Type == "Audio"
 }
 
-func GetMediaInfo(fname string) (MediaInfo, error) {
+func GetMediaInfo(fname string) ([]MediaInfo, error) {
 	info := MediaInfo{}
 
 	if !IsInstalled() {
@@ -78,12 +78,19 @@ func GetMediaInfo(fname string) (MediaInfo, error) {
 	out, err := exec.Command(*mediainfoBinary, "--Output=JSON", "-f", fname).Output()
 
 	if err != nil {
-		return info, err
+		return []MediaInfo{info}, err
 	}
 
+	if out[0] == '[' {
+		infoSlice := []MediaInfo{}
+		if err := json.Unmarshal(out, &infoSlice); err != nil {
+			return infoSlice, err
+		}
+		return infoSlice, nil
+	}
 	if err := json.Unmarshal(out, &info); err != nil {
-		return info, err
+		return []MediaInfo]{info}, err
 	}
 
-	return info, nil
+	return []MediaInfo{info}, nil
 }
