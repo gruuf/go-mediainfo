@@ -11,7 +11,7 @@ import (
 var mediainfoBinary = flag.String("mediainfo-bin", "mediainfo", "the path to the mediainfo binary if it is not in the system $PATH")
 
 type MediaInfo struct {
-	Media 	media	`json:"media"`
+	Media	media	`json:"media"`
 }
 
 type media struct {
