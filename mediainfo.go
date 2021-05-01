@@ -73,7 +73,7 @@ func GetMediaInfo(fname string) ([]MediaInfo, error) {
 	info := MediaInfo{}
 
 	if !IsInstalled() {
-		return info, fmt.Errorf("Must install mediainfo")
+		return []MediaInfo{info}, fmt.Errorf("Must install mediainfo")
 	}
 	out, err := exec.Command(*mediainfoBinary, "--Output=JSON", "-f", fname).Output()
 
