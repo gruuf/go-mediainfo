@@ -9,7 +9,6 @@ import (
 )
 
 var mediainfoBinary = flag.String("mediainfo-bin", "mediainfo", "the path to the mediainfo binary if it is not in the system $PATH")
-
 type MediaInfo struct {
 	Media	media	`json:"media"`
 }
@@ -69,13 +68,32 @@ func (info MediaInfo) IsMedia() bool {
 	return info.Media.Tracks[0].Type == "Video" || info.Media.Tracks[0].Type == "Audio"
 }
 
-func GetMediaInfo(fname string) ([]MediaInfo, error) {
+func GetSingleFileMediaInfo(fileName string) (MediaInfo, error) {
+	info := MediaInfo{}
+
+	if !IsInstalled() {
+		return info, fmt.Errorf("Must install mediainfo")
+	}
+
+	out, err := exec.Command(*mediainfoBinary, "--Output=JSON", "-f", fileName).Output()
+	if err != nil {
+		return info, err
+	}
+
+	if err := json.Unmarshal(out, &info); err != nil {
+		return info, err
+	}
+
+	return info, nil
+}
+
+func GetMediaInfo(nodeName string) ([]MediaInfo, error) {
 	info := MediaInfo{}
 
 	if !IsInstalled() {
 		return []MediaInfo{info}, fmt.Errorf("Must install mediainfo")
 	}
-	out, err := exec.Command(*mediainfoBinary, "--Output=JSON", "-f", fname).Output()
+	out, err := exec.Command(*mediainfoBinary, "--Output=JSON", "-f", nodeName).Output()
 
 	if err != nil {
 		return []MediaInfo{info}, err
