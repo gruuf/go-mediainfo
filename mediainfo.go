@@ -89,7 +89,7 @@ func GetMediaInfo(fname string) ([]MediaInfo, error) {
 		return infoSlice, nil
 	}
 	if err := json.Unmarshal(out, &info); err != nil {
-		return []MediaInfo]{info}, err
+		return []MediaInfo{info}, err
 	}
 
 	return []MediaInfo{info}, nil
